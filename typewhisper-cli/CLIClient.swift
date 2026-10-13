@@ -81,6 +81,18 @@ struct CLIClient {
         try await get("/v1/status")
     }
 
+    func loadModel(engine: String, model: String) async throws -> Data {
+        let url = URL(string: "\(baseURL)/v1/models/load")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(
+            withJSONObject: ["engine": engine, "model": model]
+        )
+        request.timeoutInterval = 300
+        return try await performRequest(request)
+    }
+
     func models() async throws -> Data {
         try await get("/v1/models")
     }

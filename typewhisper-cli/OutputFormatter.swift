@@ -81,6 +81,27 @@ enum OutputFormatter {
         return lines.joined(separator: "\n")
     }
 
+    static func formatModelAction(_ data: Data, action: String, json: Bool) -> String {
+        struct ActionResult: Encodable {
+            let engine: String
+            let model: String?
+            let status: String
+        }
+        if json {
+            return prettyJSON(data)
+        }
+        guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let engine = obj["engine"] as? String,
+              let status = obj["status"] as? String else {
+            return prettyJSON(data)
+        }
+        let model = obj["model"] as? String ?? ""
+        if model.isEmpty {
+            return "\(action.capitalized) \(engine): \(status)"
+        }
+        return "\(action.capitalized) \(engine) (\(model)): \(status)"
+    }
+
     static func formatSettingsExport(path: String, bytes: Int, json: Bool) -> String {
         guard json else {
             return "Exported settings to \(path)"

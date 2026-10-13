@@ -130,6 +130,14 @@ do {
         let data = try await client.models()
         print(OutputFormatter.formatModels(data, json: jsonOutput))
 
+    case "use":
+        guard positionalArgs.count == 2 else {
+            printError("Error: use requires an engine and a model id.")
+            exit(1)
+        }
+        let data = try await client.loadModel(engine: positionalArgs[0], model: positionalArgs[1])
+        print(OutputFormatter.formatModelAction(data, action: "Loaded", json: jsonOutput))
+
     case "export":
         guard positionalArgs.count == 1 else {
             printError("Error: export requires exactly one output file.")
@@ -232,6 +240,7 @@ func printUsage() {
           transcribe <file>    Transcribe an audio file (or - for stdin)
           status               Show server status
           models               List available models
+          use <engine> <model>  Load and select a model
           export <file>        Export a settings backup as JSON
           import <file>        Import all settings from a JSON backup
           audio                Show microphone priority, ducking and sound settings
@@ -261,6 +270,8 @@ func printUsage() {
 
         Examples:
           typewhisper status
+          typewhisper models
+          typewhisper use groq whisper-large-v3-turbo
           typewhisper export typewhisper-settings.json
           typewhisper import typewhisper-settings.json
           typewhisper import typewhisper-settings.json --replace

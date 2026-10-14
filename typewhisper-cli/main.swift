@@ -138,6 +138,14 @@ do {
         let data = try await client.loadModel(engine: positionalArgs[0], model: positionalArgs[1])
         print(OutputFormatter.formatModelAction(data, action: "Loaded", json: jsonOutput))
 
+    case "dictation":
+        guard positionalArgs.isEmpty || positionalArgs == ["status"] else {
+            printError("Error: Use 'dictation status' to show the current dictation state.")
+            exit(1)
+        }
+        let data = try await client.dictationStatus()
+        print(OutputFormatter.formatDictationStatus(data, json: jsonOutput))
+
     case "export":
         guard positionalArgs.count == 1 else {
             printError("Error: export requires exactly one output file.")
@@ -241,6 +249,7 @@ func printUsage() {
           status               Show server status
           models               List available models
           use <engine> <model>  Load and select a model
+          dictation status    Show the current dictation state
           export <file>        Export a settings backup as JSON
           import <file>        Import all settings from a JSON backup
           audio                Show microphone priority, ducking and sound settings

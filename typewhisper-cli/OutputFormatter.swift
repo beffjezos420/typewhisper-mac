@@ -195,6 +195,27 @@ enum OutputFormatter {
         return lines.joined(separator: "\n")
     }
 
+    static func formatDictationStatus(_ data: Data, json: Bool) -> String {
+        if json {
+            return prettyJSON(data)
+        }
+        guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let isRecording = obj["is_recording"] as? Bool else {
+            return prettyJSON(data)
+        }
+
+        let state = obj["state"] as? String ?? "unknown"
+        var parts = [String]()
+        parts.append(isRecording ? "Recording through \(state)" : "Not recording (\(state))")
+        if let model = obj["active_model"] as? String, !model.isEmpty {
+            parts.append("Model: \(model)")
+        }
+        if let workflow = obj["active_workflow"] as? String, !workflow.isEmpty {
+            parts.append("Workflow: \(workflow)")
+        }
+        return parts.joined(separator: " - ")
+    }
+
     private static func prettyJSON(_ data: Data) -> String {
         if let obj = try? JSONSerialization.jsonObject(with: data),
            let pretty = try? JSONSerialization.data(withJSONObject: obj, options: [.prettyPrinted, .sortedKeys]),

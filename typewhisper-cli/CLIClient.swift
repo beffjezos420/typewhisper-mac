@@ -97,6 +97,10 @@ struct CLIClient {
         try await get("/v1/models")
     }
 
+    func dictationStatus() async throws -> Data {
+        try await get("/v1/dictation/status")
+    }
+
     func exportSettings() async throws -> Data {
         try await get("/v1/settings/export", timeout: 300)
     }

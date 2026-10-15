@@ -101,6 +101,18 @@ struct CLIClient {
         try await get("/v1/dictation/status")
     }
 
+    func unloadModel(engine: String) async throws -> Data {
+        let url = URL(string: "\(baseURL)/v1/models/unload")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(
+            withJSONObject: ["engine": engine]
+        )
+        request.timeoutInterval = 10
+        return try await performRequest(request)
+    }
+
     func exportSettings() async throws -> Data {
         try await get("/v1/settings/export", timeout: 300)
     }

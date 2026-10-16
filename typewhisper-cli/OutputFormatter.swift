@@ -102,6 +102,40 @@ enum OutputFormatter {
         return "\(action.capitalized) \(engine) (\(model)): \(status)"
     }
 
+    static func formatCurrent(_ data: Data, engine: String?, json: Bool) -> String {
+        if json {
+            return prettyJSON(data)
+        }
+        guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let models = obj["models"] as? [[String: Any]] else {
+            return prettyJSON(data)
+        }
+
+        // Filter to the requested engine, or to the globally selected model when none is given.
+        let candidates: [[String: Any]]
+        if let engine {
+            candidates = models.filter { ($0["engine"] as? String) == engine }
+        } else {
+            candidates = models.filter { $0["selected"] as? Bool == true }
+        }
+
+        guard !candidates.isEmpty else {
+            if let engine {
+                return "No model selected on engine '\(engine)'."
+            }
+            return "No model loaded."
+        }
+
+        var lines = [String]()
+        for model in candidates {
+            let engineName = model["engine"] as? String ?? "unknown"
+            let modelID = model["id"] as? String ?? ""
+            let status = model["status"] as? String ?? "unknown"
+            lines.append("\(engineName) (\(modelID)): \(status)")
+        }
+        return lines.joined(separator: "\n")
+    }
+
     static func formatSettingsExport(path: String, bytes: Int, json: Bool) -> String {
         guard json else {
             return "Exported settings to \(path)"

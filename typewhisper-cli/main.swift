@@ -146,6 +146,14 @@ do {
         let data = try await client.unloadModel(engine: positionalArgs[0])
         print(OutputFormatter.formatModelAction(data, action: "Unloaded", json: jsonOutput))
 
+    case "current":
+        guard positionalArgs.count <= 1 else {
+            printError("Error: current accepts at most one engine name.")
+            exit(1)
+        }
+        let data = try await client.models()
+        print(OutputFormatter.formatCurrent(data, engine: positionalArgs.first, json: jsonOutput))
+
     case "dictation":
         guard positionalArgs.isEmpty || positionalArgs == ["status"] else {
             printError("Error: Use 'dictation status' to show the current dictation state.")
@@ -258,6 +266,7 @@ func printUsage() {
           models               List available models
           use <engine> <model>  Load and select a model
           unload <engine>       Unload the active model on an engine
+          current [engine]      Show the currently selected model
           dictation status    Show the current dictation state
           export <file>        Export a settings backup as JSON
           import <file>        Import all settings from a JSON backup
@@ -291,6 +300,8 @@ func printUsage() {
           typewhisper models
           typewhisper use groq whisper-large-v3-turbo
           typewhisper unload groq
+          typewhisper current
+          typewhisper current groq
           typewhisper export typewhisper-settings.json
           typewhisper import typewhisper-settings.json
           typewhisper import typewhisper-settings.json --replace
